@@ -1,0 +1,1 @@
+# WooCommerce-Bulk-Price-Modifier-Plugin
