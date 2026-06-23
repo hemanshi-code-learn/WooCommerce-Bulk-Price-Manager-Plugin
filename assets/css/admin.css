@@ -1,0 +1,662 @@
+/* ==========================================================================
+   WC Bulk Price Manager — Admin Styles
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Layout wrapper
+   -------------------------------------------------------------------------- */
+.wc-bpm-wrap {
+	max-width: 1100px;
+	margin: 24px 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	color: #1e1e1e;
+}
+
+/* --------------------------------------------------------------------------
+   Page header
+   -------------------------------------------------------------------------- */
+.wc-bpm-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 24px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #e8e8e8;
+}
+
+.wc-bpm-header-title {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.wc-bpm-header-title .dashicons {
+	font-size: 32px;
+	width: 32px;
+	height: 32px;
+	color: #007cba;
+	flex-shrink: 0;
+}
+
+.wc-bpm-header-title h1 {
+	margin: 0 0 2px;
+	font-size: 1.4rem;
+	font-weight: 700;
+	color: #1e1e1e;
+	line-height: 1.2;
+}
+
+.wc-bpm-header-title p {
+	margin: 0;
+	font-size: .85rem;
+	color: #666;
+}
+
+.wc-bpm-version {
+	font-size: .75rem;
+	font-weight: 600;
+	color: #888;
+	background: #f0f0f0;
+	border: 1px solid #ddd;
+	border-radius: 20px;
+	padding: 3px 10px;
+	letter-spacing: .03em;
+}
+
+/* --------------------------------------------------------------------------
+   Two-column layout
+   -------------------------------------------------------------------------- */
+.wc-bpm-layout {
+	display: grid;
+	grid-template-columns: 1fr 320px;
+	gap: 20px;
+	align-items: start;
+}
+
+@media ( max-width: 900px ) {
+	.wc-bpm-layout { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   Card
+   -------------------------------------------------------------------------- */
+.wc-bpm-card {
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 24px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.wc-bpm-card:last-child { margin-bottom: 0; }
+
+.wc-bpm-card-head {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin-bottom: 20px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.wc-bpm-card-head .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	color: #007cba;
+	margin-top: 2px;
+	flex-shrink: 0;
+}
+
+.wc-bpm-card-head h2 {
+	margin: 0 0 2px;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #1e1e1e;
+	line-height: 1.3;
+}
+
+.wc-bpm-card-desc {
+	margin: 0;
+	font-size: .8rem;
+	color: #777;
+	line-height: 1.4;
+}
+
+/* Run card accent */
+.wc-bpm-card-run {
+	border-top: 3px solid #007cba;
+}
+
+/* Rollback card accent */
+.wc-bpm-card-rollback {
+	border-top: 3px solid #cc1818;
+}
+
+.wc-bpm-card-rollback .wc-bpm-card-head .dashicons {
+	color: #cc1818;
+}
+
+/* --------------------------------------------------------------------------
+   Two-column field grid
+   -------------------------------------------------------------------------- */
+.wc-bpm-fields {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+@media ( max-width: 600px ) {
+	.wc-bpm-fields { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   Field
+   -------------------------------------------------------------------------- */
+.wc-bpm-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.wc-bpm-field label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: .8rem;
+	font-weight: 600;
+	color: #444;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+}
+
+.wc-bpm-field-hint {
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+	font-size: .78rem;
+	color: #888;
+	margin: 4px 0 0;
+	line-height: 1.4;
+}
+
+.wc-bpm-field-hint .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   Radio button group (replaces <select> for operation + amount_type)
+   -------------------------------------------------------------------------- */
+.wc-bpm-radio-group {
+	display: flex;
+	gap: 8px;
+}
+
+.wc-bpm-radio {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex: 1;
+	padding: 9px 12px;
+	border: 1px solid #d0d5dd;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: .88rem;
+	font-weight: 500;
+	color: #444;
+	background: #fff;
+	transition: border-color .15s, background .15s, color .15s;
+	user-select: none;
+}
+
+.wc-bpm-radio input[type="radio"] {
+	/* hide native radio, use border styling instead */
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.wc-bpm-radio .dashicons,
+.wc-bpm-radio span:first-of-type {
+	font-size: 15px;
+	font-weight: 700;
+	color: #999;
+	transition: color .15s;
+}
+
+.wc-bpm-radio:hover {
+	border-color: #007cba;
+	color: #007cba;
+}
+
+.wc-bpm-radio.is-active {
+	border-color: #007cba;
+	background: #f0f7fc;
+	color: #007cba;
+}
+
+.wc-bpm-radio.is-active .dashicons,
+.wc-bpm-radio.is-active span:first-of-type {
+	color: #007cba;
+}
+
+/* --------------------------------------------------------------------------
+   Amount input with prefix
+   -------------------------------------------------------------------------- */
+.wc-bpm-input-wrap {
+	display: flex;
+	align-items: stretch;
+}
+
+.wc-bpm-input-prefix {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 12px;
+	background: #f5f5f5;
+	border: 1px solid #c5c5c5;
+	border-right: none;
+	border-radius: 6px 0 0 6px;
+	font-size: .9rem;
+	font-weight: 600;
+	color: #555;
+	min-width: 36px;
+}
+
+.wc-bpm-input-wrap input[type="number"] {
+	flex: 1;
+	height: 40px;
+	padding: 0 12px;
+	border: 1px solid #c5c5c5;
+	border-radius: 0 6px 6px 0;
+	font-size: .95rem;
+	color: #1e1e1e;
+	background: #fff;
+	direction: ltr;
+	text-align: left;
+	transition: border-color .15s, box-shadow .15s;
+	-moz-appearance: textfield;
+}
+
+.wc-bpm-input-wrap input[type="number"]::-webkit-outer-spin-button,
+.wc-bpm-input-wrap input[type="number"]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+.wc-bpm-input-wrap input[type="number"]:focus {
+	outline: none;
+	border-color: #007cba;
+	box-shadow: 0 0 0 3px rgba(0,124,186,.15);
+}
+
+/* --------------------------------------------------------------------------
+   Exclude products — native multi-select
+   -------------------------------------------------------------------------- */
+.wc-bpm-select-wrap {
+	position: relative;
+}
+
+.wc-bpm-select-wrap::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: linear-gradient(90deg, #007cba, #00a0d2);
+	border-radius: 6px 6px 0 0;
+	pointer-events: none;
+	z-index: 1;
+}
+
+#bpm-exclude {
+	display: block;
+	width: 100%;
+	min-height: 180px;
+	padding: 6px 0;
+	border: 1px solid #c5c5c5;
+	border-top: none;
+	border-radius: 0 0 6px 6px;
+	font-size: .875rem;
+	color: #1e1e1e;
+	background: #fff;
+	direction: ltr;
+	text-align: left;
+	cursor: pointer;
+	transition: border-color .15s, box-shadow .15s;
+}
+
+#bpm-exclude:focus {
+	outline: none;
+	border-color: #007cba;
+	box-shadow: 0 0 0 3px rgba(0,124,186,.15);
+}
+
+#bpm-exclude option {
+	padding: 7px 14px;
+	font-size: .875rem;
+	line-height: 1.4;
+	cursor: pointer;
+	direction: ltr;
+}
+
+#bpm-exclude option:hover {
+	background: #f0f7fc;
+}
+
+/* Selected state — cross-browser */
+#bpm-exclude option:checked,
+#bpm-exclude option:checked:focus {
+	background: linear-gradient(0deg, #007cba 0%, #007cba 100%);
+	color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   Badge (excluded count)
+   -------------------------------------------------------------------------- */
+.wc-bpm-badge {
+	display: inline-flex;
+	align-items: center;
+	background: #007cba;
+	color: #fff;
+	font-size: .7rem;
+	font-weight: 600;
+	padding: 1px 7px;
+	border-radius: 20px;
+	text-transform: none;
+	letter-spacing: 0;
+	margin-left: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Single select (rollback)
+   -------------------------------------------------------------------------- */
+.wc-bpm-select-single {
+	display: block;
+	width: 100%;
+	height: 40px;
+	padding: 0 10px;
+	border: 1px solid #c5c5c5;
+	border-radius: 6px;
+	font-size: .875rem;
+	color: #1e1e1e;
+	background: #fff;
+	direction: ltr;
+	text-align: left;
+	transition: border-color .15s, box-shadow .15s;
+}
+
+.wc-bpm-select-single:focus {
+	outline: none;
+	border-color: #007cba;
+	box-shadow: 0 0 0 3px rgba(0,124,186,.15);
+}
+
+/* --------------------------------------------------------------------------
+   Actions bar
+   -------------------------------------------------------------------------- */
+.wc-bpm-actions {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid #f0f0f0;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+.wc-bpm-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 9px 18px;
+	border-radius: 6px;
+	font-size: .875rem;
+	font-weight: 600;
+	cursor: pointer;
+	border: 1px solid transparent;
+	line-height: 1.4;
+	text-decoration: none;
+	transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
+}
+
+.wc-bpm-btn:disabled {
+	opacity: .55;
+	cursor: not-allowed;
+}
+
+.wc-bpm-btn-full {
+	width: 100%;
+	justify-content: center;
+}
+
+.wc-bpm-btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.wc-bpm-btn-primary {
+	background: #007cba;
+	color: #fff;
+	border-color: #006ba1;
+}
+.wc-bpm-btn-primary:hover:not(:disabled) {
+	background: #006ba1;
+	box-shadow: 0 2px 8px rgba(0,107,161,.3);
+}
+
+.wc-bpm-btn-secondary {
+	background: #fff;
+	color: #3c3c3c;
+	border-color: #c5c5c5;
+}
+.wc-bpm-btn-secondary:hover:not(:disabled) {
+	background: #f5f5f5;
+	border-color: #999;
+}
+
+.wc-bpm-btn-danger {
+	background: #cc1818;
+	color: #fff;
+	border-color: #a01010;
+}
+.wc-bpm-btn-danger:hover:not(:disabled) {
+	background: #a01010;
+	box-shadow: 0 2px 8px rgba(160,16,16,.3);
+}
+
+/* --------------------------------------------------------------------------
+   Run summary (inside sidebar Run card)
+   -------------------------------------------------------------------------- */
+.wc-bpm-run-summary {
+	background: #f8fafc;
+	border: 1px solid #e8edf2;
+	border-radius: 6px;
+	padding: 12px 14px;
+	margin-bottom: 14px;
+}
+
+.wc-bpm-run-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 5px 0;
+	font-size: .83rem;
+	border-bottom: 1px solid #edf2f7;
+}
+
+.wc-bpm-run-row:last-child { border-bottom: none; }
+
+.wc-bpm-run-row span { color: #666; }
+.wc-bpm-run-row strong { color: #1e1e1e; }
+
+/* --------------------------------------------------------------------------
+   Warning box
+   -------------------------------------------------------------------------- */
+.wc-bpm-warning-box {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	background: #fffbeb;
+	border: 1px solid #f0c800;
+	border-radius: 6px;
+	padding: 10px 12px;
+	margin-bottom: 14px;
+	font-size: .8rem;
+	color: #6b4c00;
+	line-height: 1.5;
+}
+
+.wc-bpm-warning-box .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: #d9a800;
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   Notices
+   -------------------------------------------------------------------------- */
+.wc-bpm-notice {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 12px 16px;
+	border-radius: 6px;
+	font-size: .875rem;
+	margin-bottom: 20px;
+	line-height: 1.5;
+}
+
+.wc-bpm-notice .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
+.wc-bpm-notice-success {
+	background: #f0faf4;
+	border: 1px solid #a8d5b5;
+	color: #1a5c2a;
+}
+
+.wc-bpm-notice-success .dashicons { color: #2ea84a; }
+
+.wc-bpm-notice-error {
+	background: #fef2f2;
+	border: 1px solid #f5c2c2;
+	color: #7a1010;
+}
+
+.wc-bpm-notice-error .dashicons { color: #cc1818; }
+
+.wc-bpm-notice-info {
+	background: #f0f7fc;
+	border: 1px solid #b3d9f0;
+	color: #005f8e;
+}
+
+.wc-bpm-notice-info .dashicons { color: #007cba; }
+
+/* --------------------------------------------------------------------------
+   Summary card (after job done)
+   -------------------------------------------------------------------------- */
+.wc-bpm-summary {
+	background: #fff;
+	border: 1px solid #a8d5b5;
+	border-top: 3px solid #2ea84a;
+	border-radius: 8px;
+	padding: 20px 24px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.wc-bpm-summary-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 16px;
+}
+
+.wc-bpm-summary-header .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	color: #2ea84a;
+}
+
+.wc-bpm-summary-header h2 {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #1a5c2a;
+}
+
+.wc-bpm-summary-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+	margin-bottom: 14px;
+}
+
+@media ( max-width: 600px ) {
+	.wc-bpm-summary-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.wc-bpm-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	background: #f0faf4;
+	border: 1px solid #d0eedd;
+	border-radius: 6px;
+	padding: 12px 14px;
+}
+
+.wc-bpm-stat-label {
+	font-size: .72rem;
+	font-weight: 600;
+	color: #4a7a5a;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+}
+
+.wc-bpm-stat-value {
+	font-size: 1.6rem;
+	font-weight: 700;
+	color: #1a5c2a;
+	line-height: 1.1;
+}
+
+.wc-bpm-stat-value--sm {
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+.wc-bpm-job-id {
+	font-size: .8rem;
+	color: #666;
+	margin: 0;
+}
+
+.wc-bpm-job-id code {
+	background: #f0f0f0;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1px 5px;
+	font-size: .8rem;
+}
