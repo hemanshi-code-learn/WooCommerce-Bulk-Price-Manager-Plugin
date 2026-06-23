@@ -11,7 +11,7 @@ namespace WCBulkPriceManager\Database;
 
 class Installer {
     /** DB schema version stored in wp_options */
-	private const SCHEMA_VERSION     = '2.0.0';
+	private const SCHEMA_VERSION     = '1.0.0';
 	private const SCHEMA_VERSION_KEY = 'wc_bpm_db_version';
 
 	/**
@@ -22,7 +22,7 @@ class Installer {
 	public static function activate(): void {
 		global $wpdb;
 
-		$table          = $wpdb->prefix . 'wc_bpm_logs';
+		$table          = $wpdb->prefix . 'wc_bulk_price_manager';
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE {$table} (

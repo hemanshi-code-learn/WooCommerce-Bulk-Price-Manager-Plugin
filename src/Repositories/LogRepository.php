@@ -2,7 +2,7 @@
 /**
  * Log Repository
  *
- * All raw DB access for the wc_bpm_logs table lives here
+ * All raw DB access for the wc_bulk_price_manager table lives here
  * Controllers and services only talk to this repository, never to $wpdb directly
  */
 
@@ -18,7 +18,7 @@ final class LogRepository implements LogRepositoryInterface {
 
 	public function __construct() {
 		global $wpdb;
-		$this->table = $wpdb->prefix . 'wc_bpm_logs';
+		$this->table = $wpdb->prefix . 'wc_bulk_price_manager';
 	}
 
 	// -------------------------------------------------------------------------

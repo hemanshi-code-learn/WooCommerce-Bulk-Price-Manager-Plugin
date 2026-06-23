@@ -18,6 +18,6 @@ delete_option('wc_bpm_amount');
 delete_option('wc_bpm_exclude');
 
 // Drop custom audit trail tracking table cleanly
-$table_name = $wpdb->prefix . 'wc_bpm_logs';
+$table_name = $wpdb->prefix . 'wc_bulk_price_manager';
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
 $wpdb->query( "DROP TABLE IF EXISTS {$table_name}" );

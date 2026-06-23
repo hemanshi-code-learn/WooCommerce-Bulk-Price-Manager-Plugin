@@ -4,7 +4,7 @@ Tags: woocommerce, bulk, price, products
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 8.1
-Stable tag: 2.0.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,5 +31,5 @@ WooCommerce Bulk Price Manager lets you increase or decrease the price of all (o
 
 == Changelog ==
 
-= 2.0.0 =
+= 1.0.0 =
 * Complete rewrite: OOP, REST API, batch processing, progress bar, rollback, PSR-4 autoloading, service container, PHP 8.1 enums and DTOs.
