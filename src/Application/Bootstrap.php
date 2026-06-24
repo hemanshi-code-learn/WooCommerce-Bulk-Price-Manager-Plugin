@@ -24,7 +24,6 @@ class Bootstrap {
     public static function boot(): void {
         $container = Container::getInstance();
 
-        /** @var class-string<ServiceProviderInterface>[] $providers */
         $providers = [
             DatabaseServiceProvider::class,
             AdminServiceProvider::class,

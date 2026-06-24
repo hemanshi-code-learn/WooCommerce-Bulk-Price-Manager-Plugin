@@ -84,7 +84,9 @@ class JobController extends AbstractController {
 			return $this->error( 'invalid_amount', __( 'Amount must be greater than 0.', 'wc-bulk-price-manager' ) );
 		}
 
-		$total = $this->priceService->getTotalProductCount( $settings->excludedIds );
+		$total        = $this->priceService->getTotalProductCount( $settings->excludedIds );
+		$totalAll     = $this->priceService->getTotalProductCount( [] );
+		$excludedCount = count( $settings->excludedIds );
 
 		if ( $total === 0 ) {
 			return $this->error( 'no_products', __( 'No products found to process.', 'wc-bulk-price-manager' ) );
@@ -94,10 +96,12 @@ class JobController extends AbstractController {
 		$totalPages = (int) ceil( $total / PriceService::BATCH_SIZE );
 
 		return $this->success( [
-			'job_id'       => $jobId,
-			'total'        => $total,
-			'batch_size'   => PriceService::BATCH_SIZE,
-			'total_pages'  => $totalPages,
+			'job_id'         => $jobId,
+			'total'          => $total,
+			'total_all'      => $totalAll,
+			'excluded_count' => $excludedCount,
+			'batch_size'     => PriceService::BATCH_SIZE,
+			'total_pages'    => $totalPages,
 		] );
 	}
 

@@ -18,21 +18,79 @@
 		} );
 	} );
 
+	// ── Product search filter + clear button for exclude list ───────────────
+	document.addEventListener( 'DOMContentLoaded', function () {
+		var searchInput = document.getElementById( 'wc-bpm-product-search' );
+		var selectEl    = document.getElementById( 'bpm-exclude' );
+		var clearBtn    = document.getElementById( 'wc-bpm-clear-exclude' );
+		if ( ! selectEl ) return;
+
+		// Cache all options so search can restore them.
+		var allOptions = Array.prototype.slice.call( selectEl.options );
+
+		// Colour excluded options on first load.
+		allOptions.forEach( function ( opt ) {
+			opt.style.cssText = opt.selected
+				? 'background:#fff0f0;color:#8a1010;font-weight:600;'
+				: '';
+		} );
+
+		// Re-colour on selection change.
+		selectEl.addEventListener( 'change', function () {
+			Array.prototype.forEach.call( selectEl.options, function ( opt ) {
+				opt.style.cssText = opt.selected
+					? 'background:#fff0f0;color:#8a1010;font-weight:600;'
+					: '';
+			} );
+		} );
+
+		// Search filter.
+		if ( searchInput ) {
+			searchInput.addEventListener( 'input', function () {
+				var query = this.value.toLowerCase().trim();
+				selectEl.innerHTML = '';
+				allOptions.forEach( function ( opt ) {
+					if ( ! query || opt.text.toLowerCase().indexOf( query ) !== -1 ) {
+						selectEl.appendChild( opt );
+					}
+				} );
+			} );
+		}
+
+		// Clear all exclusions.
+		if ( clearBtn ) {
+			clearBtn.addEventListener( 'click', function () {
+				Array.prototype.forEach.call( selectEl.options, function ( opt ) {
+					opt.selected = false;
+					opt.style.cssText = '';
+				} );
+			} );
+		}
+	} );
+
 	// ── Batch processing ──────────────────────────────────────────────────────
 	document.addEventListener( 'DOMContentLoaded', function () {
 		var wrap = document.getElementById( 'wc-bpm-progress' );
 		if ( ! wrap ) return; // only runs on the progress screen
 
-		var jobId       = wrap.dataset.jobId;
-		var totalPages  = parseInt( wrap.dataset.totalPages, 10 );
-		var nonce       = wrap.dataset.nonce;
-		var restBase    = wrap.dataset.restBase;
-		var redirectUrl = wrap.dataset.redirectBase;
+		var jobId          = wrap.dataset.jobId;
+		var totalPages     = parseInt( wrap.dataset.totalPages, 10 );
+		var totalProducts  = parseInt( wrap.dataset.totalProducts, 10 ) || 0;
+		var totalAll       = parseInt( wrap.dataset.totalAll, 10 ) || totalProducts;
+		var excludedCount  = parseInt( wrap.dataset.excludedCount, 10 ) || 0;
+		var nonce          = wrap.dataset.nonce;
+		var restBase       = wrap.dataset.restBase;
 
-		var barEl      = document.getElementById( 'wc-bpm-bar' );
-		var barLabelEl = document.getElementById( 'wc-bpm-bar-label' );
-		var statusEl   = document.getElementById( 'wc-bpm-status' );
-		var logEl      = document.getElementById( 'wc-bpm-log' );
+		var barEl          = document.getElementById( 'wc-bpm-bar' );
+		var barLabelEl     = document.getElementById( 'wc-bpm-bar-label' );
+		var statusEl       = document.getElementById( 'wc-bpm-status' );
+		var logEl          = document.getElementById( 'wc-bpm-log' );
+		var headingEl      = document.getElementById( 'wc-bpm-heading' );
+		var subtitleEl     = document.getElementById( 'wc-bpm-subtitle' );
+		var backBtnWrap    = document.getElementById( 'wc-bpm-back-btn-wrap' );
+		var statsUpdEl     = document.getElementById( 'wc-bpm-stat-updated' );
+		var statsRemEl     = document.getElementById( 'wc-bpm-stat-remaining' );
+		var statsSkipEl    = document.getElementById( 'wc-bpm-stat-skipped' );
 
 		var totalUpdated = 0;
 
@@ -40,6 +98,15 @@
 		if ( ! jobId || isNaN( totalPages ) || totalPages < 1 ) {
 			setStatus( 'Error: missing job data. Please try again.', 'error' );
 			return;
+		}
+
+		// Init stats display: remaining = all products (none updated yet).
+		updateStats( 0, totalAll, excludedCount );
+
+		function updateStats( updated, remaining, skipped ) {
+			if ( statsUpdEl  ) statsUpdEl.textContent  = updated;
+			if ( statsRemEl  ) statsRemEl.textContent  = remaining;
+			if ( statsSkipEl ) statsSkipEl.textContent = skipped;
 		}
 
 		function setBar( pct ) {
@@ -71,6 +138,12 @@
 			logEl.scrollTop = logEl.scrollHeight;
 		}
 
+		function showBackButton() {
+			if ( backBtnWrap ) {
+				backBtnWrap.style.display = 'block';
+			}
+		}
+
 		function processBatch( page ) {
 			setStatus( 'Processing batch ' + page + ' of ' + totalPages + '…' );
 			addLog( '⏳  Batch ' + page + ' / ' + totalPages + ' — sending…', 'info' );
@@ -86,6 +159,7 @@
 				if ( ! data.success ) {
 					addLog( '✗  Batch ' + page + ' failed: ' + ( data.message || 'Unknown error.' ), 'error' );
 					setStatus( 'Stopped — error on batch ' + page + '.', 'error' );
+					showBackButton();
 					return;
 				}
 
@@ -93,6 +167,9 @@
 				totalUpdated += n;
 				var pct = Math.round( ( page / totalPages ) * 100 );
 				setBar( pct );
+
+				var remaining = Math.max( 0, totalAll - totalUpdated );
+				updateStats( totalUpdated, remaining, excludedCount );
 
 				addLog(
 					'✓  Batch ' + page + ' complete — ' +
@@ -104,14 +181,14 @@
 				if ( data.is_done || page >= totalPages ) {
 					setBar( 100 );
 					setStatus( '✓ All done! ' + totalUpdated + ' product' + ( totalUpdated !== 1 ? 's' : '' ) + ' updated.', 'done' );
-					addLog( '🎉  Job complete — redirecting…', 'success' );
-					setTimeout( function () {
-						window.location.href =
-							redirectUrl +
-							'&status=done' +
-							'&job_id='   + encodeURIComponent( jobId ) +
-							'&updated='  + totalUpdated;
-					}, 2000 );
+					addLog( '🎉  Job complete!', 'success' );
+
+					// Update heading and subtitle to reflect completion.
+					if ( headingEl ) headingEl.textContent = 'Update Complete!';
+					if ( subtitleEl ) subtitleEl.textContent = totalUpdated + ' product' + ( totalUpdated !== 1 ? 's' : '' ) + ' were successfully updated.';
+
+					// Show the back button.
+					showBackButton();
 				} else {
 					setTimeout( function () { processBatch( page + 1 ); }, 500 );
 				}
@@ -119,6 +196,7 @@
 			.catch( function ( err ) {
 				addLog( '✗  Network error on batch ' + page + ': ' + err.message, 'error' );
 				setStatus( 'Network error — stopped.', 'error' );
+				showBackButton();
 			} );
 		}
 

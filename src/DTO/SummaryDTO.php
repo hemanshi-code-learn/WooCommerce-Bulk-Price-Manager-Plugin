@@ -14,7 +14,6 @@ class SummaryDTO {
 	public function __construct(
 		public readonly string $jobId,
 		public readonly int    $totalProcessed,
-		public readonly float  $averageAdjustment,
 		public readonly string $startedAt,
 	) {}
 
@@ -25,7 +24,6 @@ class SummaryDTO {
 		return [
 			'job_id'             => $this->jobId,
 			'total_processed'    => $this->totalProcessed,
-			'average_adjustment' => round( $this->averageAdjustment, 2 ),
 			'started_at'         => $this->startedAt,
 		];
 	}

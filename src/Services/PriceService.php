@@ -88,6 +88,8 @@ final class PriceService {
 				continue;
 			}
 
+			$productUpdated = false;
+
 			if ( $product->is_type( 'variable' ) ) {
 				/** @var \WC_Product_Variable $product */
 				foreach ( $product->get_children() as $variationId ) {
@@ -96,13 +98,17 @@ final class PriceService {
 						continue;
 					}
 					if ( $this->applyPrice( $variation, $settings, $jobId, $userId ) ) {
-						$updated++;
+						$productUpdated = true;
 					}
 				}
 			} else {
 				if ( $this->applyPrice( $product, $settings, $jobId, $userId ) ) {
-					$updated++;
+					$productUpdated = true;
 				}
+			}
+
+			if ( $productUpdated ) {
+				$updated++;
 			}
 		}
 
@@ -122,7 +128,6 @@ final class PriceService {
 		return new SummaryDTO(
 			jobId:             $jobId,
 			totalProcessed:    (int)    ( $metrics['total_processed'] ?? 0 ),
-			averageAdjustment: (float)  ( $metrics['avg_adjustment']  ?? 0 ),
 			startedAt:         (string) ( $metrics['started_at']      ?? '' ),
 		);
 	}

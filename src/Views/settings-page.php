@@ -3,28 +3,29 @@
  * Settings Page View
  *
  * Variables available from AdminPage::renderPage():
- *   $settings    — SettingsDTO
- *   $status      — string  (saved|done|rolled_back|error|run_error|rollback_error)
- *   $msg         — string  error message
- *   $jobId       — string
- *   $updated     — int
- *   $restored    — int
- *   $recentJobs  — string[]
- *   $allProducts — array{id:int, label:string}[]
- *   $excludedIds — int[]
+ *   $settings        — SettingsDTO
+ *   $status          — string  (saved|done|rolled_back|error|run_error|rollback_error|running)
+ *   $msg             — string  error message
+ *   $jobId           — string
+ *   $updated         — int
+ *   $restored        — int
+ *   $skippedProducts — int  (excluded products count passed back from JS)
+ *   $totalProducts   — int  (total products that were targeted)
+ *   $recentJobs      — string[]
+ *   $allProducts     — array{id:int, label:string}[]
+ *   $excludedIds     — int[]
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-$avgAdj      = number_format( (float) ( $_GET['average_adjustment'] ?? 0 ), 2 );
 $startedAt   = sanitize_text_field( rawurldecode( $_GET['started_at'] ?? '' ) );
 $noticeTypes = [ 'error', 'run_error', 'rollback_error' ];
 
 // ── progress screen ─────────────────────────────────────────────────────────
 // When status=running the page shows a live progress UI; JS drives all batches.
 if ( $status === 'running' ) :
-	$redirectBase = admin_url( 'admin.php?page=wc-bulk-price-manager' );
+	$backUrl      = admin_url( 'admin.php?page=wc-bulk-price-manager' );
 ?>
 <div class="wc-bpm-wrap">
 
@@ -39,7 +40,7 @@ if ( $status === 'running' ) :
         <span class="wc-bpm-version">v<?php echo esc_html( WC_BPM_VERSION ); ?></span>
     </div>
 
-    <div class="wc-bpm-card wc-bpm-card-progress" style="max-width:700px;">
+    <div class="wc-bpm-card wc-bpm-card-progress" style="max-width:740px;">
 
         <div class="wc-bpm-card-head">
             <span class="dashicons dashicons-update wc-bpm-spin"></span>
@@ -55,9 +56,25 @@ if ( $status === 'running' ) :
             </div>
         </div>
 
+        <!-- Live stats row -->
+        <div class="wc-bpm-progress-stats">
+            <div class="wc-bpm-pstat">
+                <span class="wc-bpm-pstat-value" id="wc-bpm-stat-updated">0</span>
+                <span class="wc-bpm-pstat-label"><?php esc_html_e( 'Updated', 'wc-bulk-price-manager' ); ?></span>
+            </div>
+            <div class="wc-bpm-pstat">
+                <span class="wc-bpm-pstat-value" id="wc-bpm-stat-remaining"><?php echo esc_html( (int)$totalAll ); ?></span>
+                <span class="wc-bpm-pstat-label"><?php esc_html_e( 'Remaining', 'wc-bulk-price-manager' ); ?></span>
+            </div>
+            <div class="wc-bpm-pstat wc-bpm-pstat--skip">
+                <span class="wc-bpm-pstat-value" id="wc-bpm-stat-skipped"><?php echo esc_html( (int) $excludedCount ); ?></span>
+                <span class="wc-bpm-pstat-label"><?php esc_html_e( 'Skipped', 'wc-bulk-price-manager' ); ?></span>
+            </div>
+        </div>
+
         <!-- Progress bar -->
         <div style="display:flex;align-items:center;gap:12px;margin:20px 0 8px;">
-            <div style="flex:1;height:16px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div style="flex:1;height:18px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
                 <div id="wc-bpm-bar"
                      style="height:100%;width:0%;background:#2271b1;border-radius:99px;transition:width .35s ease;"></div>
             </div>
@@ -72,17 +89,27 @@ if ( $status === 'running' ) :
 
         <!-- Per-batch log -->
         <ul id="wc-bpm-log"
-            style="list-style:none;margin:0;padding:0;max-height:280px;overflow-y:auto;
+            style="list-style:none;margin:0;padding:0;max-height:260px;overflow-y:auto;
                    border:1px solid #e2e8f0;border-radius:6px;background:#f8fafc;"></ul>
+
+        <!-- Back button — hidden until job finishes or errors -->
+        <div id="wc-bpm-back-btn-wrap" style="display:none;margin-top:20px;">
+            <a href="<?php echo esc_url( $backUrl ); ?>" class="wc-bpm-btn wc-bpm-btn-secondary">
+                <span class="dashicons dashicons-arrow-left-alt"></span>
+                <?php esc_html_e( 'Back to Settings', 'wc-bulk-price-manager' ); ?>
+            </a>
+        </div>
 
         <!-- Data for admin.js — all values set server-side -->
         <div id="wc-bpm-progress" style="display:none"
             data-job-id="<?php echo esc_attr( $jobId ); ?>"
             data-total-pages="<?php echo esc_attr( (int) $totalPages ); ?>"
             data-batch-size="<?php echo esc_attr( (int) $batchSize ); ?>"
+            data-total-products="<?php echo esc_attr( (int) $totalProducts ); ?>"
+            data-total-all="<?php echo esc_attr( (int) $totalAll ); ?>"
+            data-excluded-count="<?php echo esc_attr( (int) $excludedCount ); ?>"
             data-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
             data-rest-base="<?php echo esc_url( rest_url() ); ?>"
-            data-redirect-base="<?php echo esc_url( $redirectBase ); ?>"
         ></div>
 
     </div><!-- .wc-bpm-card -->
@@ -128,7 +155,7 @@ endif;
         </div>
     <?php endif; ?>
 
-    <!-- ── Job complete summary ─────────────────────────────────────────── -->
+    <!-- ── Job complete summary (replaces old avg-adjustment card) ──────── -->
     <?php if ( $status === 'done' ) : ?>
     <div class="wc-bpm-summary">
         <div class="wc-bpm-summary-header">
@@ -141,15 +168,17 @@ endif;
                 <span class="wc-bpm-stat-value"><?php echo esc_html( $updated ); ?></span>
             </div>
             <div class="wc-bpm-stat">
-                <span class="wc-bpm-stat-label"><?php esc_html_e( 'Avg. Adjustment', 'wc-bulk-price-manager' ); ?></span>
-                <span class="wc-bpm-stat-value"><?php echo esc_html( $avgAdj ); ?></span>
+                <span class="wc-bpm-stat-label"><?php esc_html_e( 'Skipped (Excluded)', 'wc-bulk-price-manager' ); ?></span>
+                <span class="wc-bpm-stat-value"><?php echo esc_html( $skippedProducts ); ?></span>
             </div>
-            <?php if ( $startedAt ) : ?>
+            <?php
+            // Remaining = all WooCommerce products - updated (excluded still exist in WC, just weren't touched)
+            $remaining = max( 0, $totalAll - $updated );
+            ?>
             <div class="wc-bpm-stat">
-                <span class="wc-bpm-stat-label"><?php esc_html_e( 'Started At', 'wc-bulk-price-manager' ); ?></span>
-                <span class="wc-bpm-stat-value wc-bpm-stat-value--sm"><?php echo esc_html( $startedAt ); ?></span>
+                <span class="wc-bpm-stat-label"><?php esc_html_e( 'Remaining', 'wc-bulk-price-manager' ); ?></span>
+                <span class="wc-bpm-stat-value"><?php echo esc_html( $remaining ); ?></span>
             </div>
-            <?php endif; ?>
         </div>
         <p class="wc-bpm-job-id">
             <?php esc_html_e( 'Job ID:', 'wc-bulk-price-manager' ); ?>
@@ -257,6 +286,19 @@ endif;
                                 <span><?php esc_html_e( 'No products found. Make sure WooCommerce has published products.', 'wc-bulk-price-manager' ); ?></span>
                             </div>
                         <?php else : ?>
+                            <!-- Search box -->
+                            <div class="wc-bpm-search-wrap">
+                                <span class="dashicons dashicons-search"></span>
+                                <input
+                                    type="text"
+                                    id="wc-bpm-product-search"
+                                    placeholder="<?php esc_attr_e( 'Search products…', 'wc-bulk-price-manager' ); ?>"
+                                    autocomplete="off"
+                                />
+                            </div>
+                            <div class="wc-bpm-select-legend">
+                                <button type="button" id="wc-bpm-clear-exclude" class="wc-bpm-btn-link"><?php esc_html_e( 'Clear all', 'wc-bulk-price-manager' ); ?></button>
+                            </div>
                             <div class="wc-bpm-select-wrap">
                                 <select
                                     id="bpm-exclude"
@@ -271,13 +313,14 @@ endif;
                                         <option
                                             value="<?php echo esc_attr( $product['id'] ); ?>"
                                             <?php selected( $isExcluded, true ); ?>
+                                            data-excluded="<?php echo $isExcluded ? '1' : '0'; ?>"
                                         ><?php echo esc_html( $product['label'] ); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <p class="wc-bpm-field-hint">
                                 <span class="dashicons dashicons-info-outline"></span>
-                                <?php esc_html_e( 'Hold Ctrl (Windows) or ⌘ Cmd (Mac) to select or deselect multiple products.', 'wc-bulk-price-manager' ); ?>
+                                <?php esc_html_e( 'Selected (highlighted) products will be EXCLUDED from price updates. Hold Ctrl (Windows) or ⌘ Cmd (Mac) to select or deselect multiple.', 'wc-bulk-price-manager' ); ?>
                             </p>
                         <?php endif; ?>
                     </div>

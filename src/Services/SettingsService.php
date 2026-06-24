@@ -34,6 +34,13 @@ final class SettingsService {
 	}
 
 	/**
+	 * Delete saved settings from the database.
+	 */
+	public function delete(): bool {
+		return delete_option( self::OPTION_KEY );
+	}
+
+	/**
 	 * Load settings from DB, returning a DTO with safe defaults.
 	 */
 	public function load(): SettingsDTO {

@@ -13,6 +13,7 @@ declare( strict_types=1 );
 
 namespace WCBulkPriceManager\Admin;
 
+use WCBulkPriceManager\DTO\SettingsDTO;
 use WCBulkPriceManager\Services\SettingsService;
 use WCBulkPriceManager\Services\PriceService;
 
@@ -166,10 +167,13 @@ class AdminPage {
 
 		// Redirect to the progress screen — JS takes it from here.
 		$this->redirect( [
-			'status'      => 'running',
-			'job_id'      => $start['job_id'],
-			'total_pages' => (int) $start['total_pages'],
-			'batch_size'  => (int) $start['batch_size'],
+			'status'         => 'running',
+			'job_id'         => $start['job_id'],
+			'total_pages'    => (int) $start['total_pages'],
+			'batch_size'     => (int) $start['batch_size'],
+			'total_products' => (int) $start['total'],
+			'total_all'      => (int) $start['total_all'],
+			'excluded_count' => (int) $start['excluded_count'],
 		] );
 	}
 
@@ -222,34 +226,47 @@ class AdminPage {
             wp_die( esc_html__( 'Permission denied.', 'wc-bulk-price-manager' ) );
         }
 
-        $settings   = $this->settingsService->load();
-        $status     = sanitize_key( $_GET['status'] ?? '' );
-        $msg        = sanitize_text_field( rawurldecode( $_GET['msg'] ?? '' ) );
-        $jobId      = sanitize_text_field( $_GET['job_id'] ?? '' );
-        $updated    = (int) ( $_GET['updated'] ?? 0 );
-        $restored   = (int) ( $_GET['restored'] ?? 0 );
-        $totalPages = (int) ( $_GET['total_pages'] ?? 0 );
-        $batchSize  = (int) ( $_GET['batch_size'] ?? PriceService::BATCH_SIZE );
+		$status          = sanitize_key( $_GET['status'] ?? '' );
+        $msg             = sanitize_text_field( rawurldecode( $_GET['msg'] ?? '' ) );
+        $jobId           = sanitize_text_field( $_GET['job_id'] ?? '' );
+        $updated         = (int) ( $_GET['updated'] ?? 0 );
+        $restored        = (int) ( $_GET['restored'] ?? 0 );
+        $totalPages      = (int) ( $_GET['total_pages'] ?? 0 );
+        $totalProducts   = (int) ( $_GET['total_products'] ?? 0 );
+        $totalAll        = (int) ( $_GET['total_all'] ?? 0 );
+        $excludedCount   = (int) ( $_GET['excluded_count'] ?? 0 );
+        $skippedProducts = (int) ( $_GET['skipped'] ?? 0 );
+        $batchSize       = (int) ( $_GET['batch_size'] ?? PriceService::BATCH_SIZE );
         if ( $batchSize < 1 ) {
             $batchSize = PriceService::BATCH_SIZE;
         }
 
-        // Skip expensive REST queries while the progress screen is showing.
-        if ( $status === 'running' ) {
-            $recentJobs  = [];
-            $allProducts = [];
-            $excludedIds = $settings->excludedIds;
-            include WC_BPM_DIR . 'src/Views/settings-page.php';
-            return;
-        }
+		// Skip expensive REST queries while the progress screen is showing.
+		if ( $status === 'running' ) {
+			$settings    = $this->settingsService->load();
+			$recentJobs  = [];
+			$allProducts = [];
+			$excludedIds = $settings->excludedIds;
+			include WC_BPM_DIR . 'src/Views/settings-page.php';
+			return;
+		}
+
+		// Fresh load or after completed job: delete saved settings and show empty form.
+		if ( $status === 'done' || $status === '' ) {
+			$this->settingsService->delete();
+			$settings    = SettingsDTO::fromArray( [] );
+			$excludedIds = [];
+		} else {
+			// status=saved, rolled_back, error etc — show what's in the DB.
+			$settings    = $this->settingsService->load();
+			$excludedIds = $settings->excludedIds;
+		}
 
         $jobsResp    = $this->restGet( '/jobs' );
         $recentJobs  = $jobsResp['jobs'] ?? [];
 
         $productsResp = $this->restGet( '/products/search' );
         $allProducts  = $productsResp['products'] ?? [];
-
-        $excludedIds = $settings->excludedIds;
 
         // Pass all variables to the view
         include WC_BPM_DIR . 'src/Views/settings-page.php';

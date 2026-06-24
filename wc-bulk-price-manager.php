@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Plugin constants.
-define( 'WC_BPM_VERSION', '2.0.0' );
+define( 'WC_BPM_VERSION', '1.0.0' );
 define( 'WC_BPM_FILE', __FILE__ );
 define( 'WC_BPM_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_BPM_URL', plugin_dir_url( __FILE__ ) );

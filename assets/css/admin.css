@@ -302,6 +302,10 @@
 	position: relative;
 }
 
+.wc-bpm-select-wrap select{
+	max-width: 100% !important;
+}
+
 .wc-bpm-select-wrap::before {
 	content: '';
 	position: absolute;
@@ -659,4 +663,155 @@
 	border-radius: 3px;
 	padding: 1px 5px;
 	font-size: .8rem;
+}
+/* --------------------------------------------------------------------------
+   Live progress stats (during batch processing)
+   -------------------------------------------------------------------------- */
+.wc-bpm-progress-stats {
+	display: flex;
+	gap: 12px;
+	margin: 0 0 8px;
+}
+
+.wc-bpm-pstat {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	background: #f0f7fc;
+	border: 1px solid #b3d9f0;
+	border-radius: 8px;
+	padding: 14px 10px 10px;
+}
+
+.wc-bpm-pstat--skip {
+	background: #fef9ec;
+	border-color: #f0c800;
+}
+
+.wc-bpm-pstat-value {
+	font-size: 1.9rem;
+	font-weight: 700;
+	color: #007cba;
+	line-height: 1;
+}
+
+.wc-bpm-pstat--skip .wc-bpm-pstat-value {
+	color: #8a6000;
+}
+
+.wc-bpm-pstat-label {
+	font-size: .7rem;
+	font-weight: 600;
+	color: #555;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+}
+
+/* --------------------------------------------------------------------------
+   Product search box (above exclude list)
+   -------------------------------------------------------------------------- */
+.wc-bpm-search-wrap {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background: #fff;
+	border: 1px solid #c5c5c5;
+	border-radius: 6px;
+	padding: 6px 10px;
+	margin-bottom: 6px;
+}
+
+.wc-bpm-search-wrap .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: #999;
+	flex-shrink: 0;
+}
+
+.wc-bpm-search-wrap input[type="text"] {
+	border: none;
+	outline: none;
+	box-shadow: none;
+	font-size: .875rem;
+	color: #1e1e1e;
+	width: 100%;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+}
+
+.wc-bpm-search-wrap input[type="text"]::placeholder {
+	color: #aaa;
+}
+
+.wc-bpm-search-wrap:focus-within {
+	border-color: #007cba;
+	box-shadow: 0 0 0 2px rgba(0,124,186,.15);
+}
+
+/* --------------------------------------------------------------------------
+   Summary grid — updated to 3 columns (removes avg adjustment)
+   -------------------------------------------------------------------------- */
+.wc-bpm-summary-grid {
+	grid-template-columns: repeat(3, 1fr);
+}
+
+@media ( max-width: 600px ) {
+	.wc-bpm-summary-grid { grid-template-columns: 1fr 1fr; }
+	.wc-bpm-progress-stats { flex-wrap: wrap; }
+	.wc-bpm-pstat { min-width: calc(50% - 6px); }
+}
+
+/* --------------------------------------------------------------------------
+   Exclude select — legend row
+   -------------------------------------------------------------------------- */
+.wc-bpm-select-legend {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 5px;
+	font-size: .75rem;
+}
+
+.wc-bpm-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	color: #666;
+}
+
+.wc-bpm-legend-item::before {
+	content: '';
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
+.wc-bpm-legend-normal::before  { background: #fff; border: 1px solid #c5c5c5; }
+.wc-bpm-legend-excluded::before { background: #fff0f0; border: 1px solid #e0a0a0; }
+
+.wc-bpm-btn-link {
+	background: none;
+	border: none;
+	color: #007cba;
+	font-size: .75rem;
+	cursor: pointer;
+	padding: 0;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.wc-bpm-btn-link:hover { color: #005d8f; }
+
+/* Excluded option highlight in select */
+#bpm-exclude option:checked,
+#bpm-exclude option[selected] {
+	background: #fff0f0;
+	color: #8a1010;
+	font-weight: 600;
 }
