@@ -4,6 +4,56 @@
 ( function () {
 	'use strict';
 
+	// ── Instantly Hide All Admin Notifications Only On Page Refresh (F5) ──────
+    ( function () {
+        var isReload = false;
+
+        // Modern check for page reloads
+        if ( window.performance && window.performance.getEntriesByType ) {
+            var navEntries = window.performance.getEntriesByType( 'navigation' );
+            if ( navEntries.length > 0 && navEntries[0].type === 'reload' ) {
+                isReload = true;
+            }
+        }
+        // Legacy fallback
+        if ( ! isReload && window.performance && window.performance.navigation ) {
+            if ( window.performance.navigation.type === 1 ) {
+                isReload = true;
+            }
+        }
+
+        if ( isReload ) {
+            // Target core WordPress notice classes alongside plugin-specific selectors
+            var selectors = '.notice, .updated, .error, .wc-bpm-notice, .wc-bpm-summary';
+            
+            // Execute immediately to catch notices parsing into the DOM early
+            var hideNotices = function () {
+                var notices = document.querySelectorAll( selectors );
+                notices.forEach( function ( notice ) {
+                    notice.style.setProperty( 'display', 'none', 'important' );
+                } );
+            };
+
+            hideNotices();
+            document.addEventListener( 'DOMContentLoaded', hideNotices );
+            window.addEventListener( 'load', hideNotices );
+        }
+
+        // Always scrub status query parameters from the visible browser bar 
+        document.addEventListener( 'DOMContentLoaded', function () {
+            var url = new URL( window.location.href );
+            var flashStatuses = [ 'rolled_back', 'done', 'saved', 'error', 'run_error', 'rollback_error' ];
+            if ( flashStatuses.indexOf( url.searchParams.get( 'status' ) ) !== -1 ) {
+                url.searchParams.delete( 'status' );
+                url.searchParams.delete( 'restored' );
+                url.searchParams.delete( 'updated' );
+                url.searchParams.delete( 'skipped' );
+                url.searchParams.delete( 'msg' );
+                window.history.replaceState( {}, document.title, url.toString() );
+            }
+        } );
+    }() );
+
 	// ── Radio button active-class sync ────────────────────────────────────────
 	document.addEventListener( 'DOMContentLoaded', function () {
 		document.querySelectorAll( '.wc-bpm-radio-group' ).forEach( function ( group ) {
